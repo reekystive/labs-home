@@ -1,6 +1,10 @@
 words:
+  - asus
   - avenir
+  - netdata
   - reekystive
+  - xboard
+  - zustand
 flagWords:
   - blacklist -> blocklist
   - whitelist -> allowlist
