@@ -1,5 +1,5 @@
 import classNames from 'classnames';
-import { FC, useEffect, useRef, useState } from 'react';
+import { FC, useCallback, useEffect, useRef, useState } from 'react';
 
 import { sites } from '../constants/sites.ts';
 import { useCommands } from '../hooks/use-commands.ts';
@@ -77,7 +77,7 @@ const BlinkingCursor: FC<{ overlay?: boolean }> = ({ overlay }) => {
   );
 };
 
-export const Screen: FC<{ value: string }> = ({ value }) => {
+export const Screen: FC<{ value: string; onChange?: (v: string | null) => void }> = ({ value, onChange }) => {
   return (
     <div className="flex h-48 w-[280px] flex-col gap-1 overflow-hidden rounded-lg bg-red-950 p-1">
       <div className="flex min-w-0 break-all p-1 font-mono text-2xl font-bold">
@@ -85,20 +85,26 @@ export const Screen: FC<{ value: string }> = ({ value }) => {
         <span className={value === '' ? 'opacity-50' : ''}>{value || 'Kia Ora!'}</span>
         {value === '' ? null : <BlinkingCursor />}
       </div>
-      <Suggestions sites={sites} prefix={value} />
+      <Suggestions sites={sites} prefix={value} onChange={onChange} />
     </div>
   );
 };
 
-export const Suggestions: FC<{ sites: Site[]; prefix: string }> = ({ sites, prefix }) => {
+export const Suggestions: FC<{ sites: Site[]; prefix: string; onChange?: (v: string | null) => void }> = ({
+  sites,
+  prefix,
+  onChange,
+}) => {
   const [selected, setSelected] = useState(0);
-  const { executeCommand } = useCommands();
 
   let filteredSites = filterSites(prefix, sites).slice(0, 4);
   if (prefix === '') {
     filteredSites = [];
   }
-  const selectedUrl = filteredSites[selected]?.url;
+  const selectedUrl = filteredSites[selected]?.url ?? null;
+  useEffect(() => {
+    onChange?.(selectedUrl);
+  }, [selectedUrl]);
 
   useEffect(() => {
     if (selected >= filteredSites.length) {
@@ -110,16 +116,6 @@ export const Suggestions: FC<{ sites: Site[]; prefix: string }> = ({ sites, pref
     const handleKeyDown = (e: KeyboardEvent) => {
       console.log(e.key);
       if (e.repeat) return;
-      if (e.key === 'Enter') {
-        if (!selectedUrl) {
-          return;
-        }
-        if (selectedUrl.startsWith('command://')) {
-          executeCommand(selectedUrl);
-        } else {
-          window.open(selectedUrl, '_blank');
-        }
-      }
       if (e.key === 'ArrowUp') {
         setSelected((prev) => (prev - 1 + filteredSites.length) % filteredSites.length);
       }
@@ -160,6 +156,8 @@ export const Numpad: FC = () => {
   const numpadRef = useRef<HTMLDivElement>(null);
   const [activeKeys, setActiveKeys] = useState<string[]>([]);
   const [value, setValue] = useState<string>('');
+  const url = useRef<string | null>(null);
+  const { executeCommand } = useCommands();
 
   const updateValue = (v: string | ((prev: string) => string)) => {
     setValue((prev) => {
@@ -176,6 +174,17 @@ export const Numpad: FC = () => {
     });
   };
 
+  const handleOk = useCallback(() => {
+    if (!url.current) {
+      return;
+    }
+    if (url.current.startsWith('command://')) {
+      executeCommand(url.current);
+    } else {
+      window.open(url.current, '_blank');
+    }
+  }, []);
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.repeat && e.key !== 'Backspace') return;
@@ -186,6 +195,7 @@ export const Numpad: FC = () => {
         return;
       }
       if (REVERSE_KEY_MAP[e.key] === 'ok') {
+        handleOk();
         return;
       }
       updateValue((prev) => prev + (REVERSE_KEY_MAP[e.key] ?? ''));
@@ -215,7 +225,12 @@ export const Numpad: FC = () => {
 
   return (
     <div className="flex select-none flex-col gap-2" ref={numpadRef}>
-      <Screen value={value} />
+      <Screen
+        value={value}
+        onChange={(v) => {
+          url.current = v;
+        }}
+      />
       <div className="flex flex-row gap-2">
         <NumpadButton value="d" active={activeKeys.includes('d')} onClick={() => updateValue((v) => v + 'd')} />
         <NumpadButton value="e" active={activeKeys.includes('e')} onClick={() => updateValue((v) => v + 'e')} />
@@ -247,12 +262,7 @@ export const Numpad: FC = () => {
       <div className="flex flex-row gap-2">
         <NumpadButton value="0" active={activeKeys.includes('0')} onClick={() => updateValue((v) => v + '0')} />
         <NumpadButton value="x" active={activeKeys.includes('x')} onClick={() => updateValue((v) => v + 'x')} />
-        <NumpadButton
-          value="ok"
-          colspan={2}
-          active={activeKeys.includes('ok')}
-          onClick={() => console.log('OK button clicked')}
-        />
+        <NumpadButton value="ok" colspan={2} active={activeKeys.includes('ok')} onClick={() => handleOk()} />
       </div>
     </div>
   );
