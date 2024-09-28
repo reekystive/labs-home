@@ -203,6 +203,16 @@ export const Numpad: FC = () => {
     };
   }, []);
 
+  useEffect(() => {
+    const handleWindowBlur = () => {
+      setActiveKeys([]);
+    };
+    window.addEventListener('blur', handleWindowBlur);
+    return () => {
+      window.removeEventListener('blur', handleWindowBlur);
+    };
+  }, []);
+
   return (
     <div className="flex select-none flex-col gap-2" ref={numpadRef}>
       <Screen value={value} />
