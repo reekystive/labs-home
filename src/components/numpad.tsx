@@ -104,7 +104,7 @@ export const Suggestions: FC<{ sites: Site[]; prefix: string; onChange?: (v: str
   const selectedUrl = filteredSites[selected]?.url ?? null;
   useEffect(() => {
     onChange?.(selectedUrl);
-  }, [selectedUrl]);
+  }, [onChange, selectedUrl]);
 
   useEffect(() => {
     if (selected >= filteredSites.length) {
@@ -127,7 +127,7 @@ export const Suggestions: FC<{ sites: Site[]; prefix: string; onChange?: (v: str
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [filteredSites.length, selectedUrl]);
+  }, [filteredSites.length]);
 
   return (
     <div className="flex flex-col font-mono">
@@ -183,7 +183,7 @@ export const Numpad: FC = () => {
     } else {
       window.open(url.current, '_blank');
     }
-  }, []);
+  }, [executeCommand]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -211,7 +211,7 @@ export const Numpad: FC = () => {
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('keyup', handleKeyUp);
     };
-  }, []);
+  }, [handleOk]);
 
   useEffect(() => {
     const handleWindowBlur = () => {
