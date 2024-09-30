@@ -21,6 +21,9 @@ export default {
           950: '#650f06',
         },
       },
+      fontFamily: {
+        mono: ['JetBrains Mono Variable', 'Menlo', 'Consolas', 'monospace'],
+      },
     },
   },
   plugins: [],

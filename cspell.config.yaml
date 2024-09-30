@@ -1,6 +1,10 @@
 words:
   - asus
   - avenir
+  - compat
+  - consolas
+  - fontsource
+  - menlo
   - netdata
   - reekystive
   - xboard
@@ -12,3 +16,4 @@ suggestWords:
   - colour -> color
 ignorePaths:
   - cspell.config.yaml
+  - pnpm-lock.yaml
