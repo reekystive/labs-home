@@ -1,5 +1,12 @@
 import { Site } from '../components/site-list';
-import { CONFETTI, CONFETTI_SCHOOL_PRIDE, CONFETTI_SNOW, CONFETTI_STARS, TOGGLE_SITE_LIST } from './commands.ts';
+import {
+  CONFETTI,
+  CONFETTI_SCHOOL_PRIDE,
+  CONFETTI_SNOW,
+  CONFETTI_STARS,
+  TOGGLE_CURTAIN_MODE,
+  TOGGLE_SITE_LIST,
+} from './commands.ts';
 
 const allSites: (Site & { hidden?: boolean })[] = [
   { id: '0x23', url: 'https://git.d.reeky.org:233/', title: "Reeky's GitLab Server", description: '今天想写点什么?' },
@@ -82,6 +89,12 @@ const allSites: (Site & { hidden?: boolean })[] = [
     url: TOGGLE_SITE_LIST,
     title: 'Toggle site list',
     description: 'Show or hide the site list',
+  },
+  {
+    id: '0x0f',
+    url: TOGGLE_CURTAIN_MODE,
+    title: 'Toggle curtain mode',
+    description: 'Show or hide UI elements',
   },
   {
     id: '0xe3',
